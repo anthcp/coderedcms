@@ -5,22 +5,6 @@
 <div class="container">
   <div class="row">
     <div class="col pt-5 pb-5">
-      <form method="get" class="mb-3">
-        <label for="tz" class="form-label"><b>Display timezone</b></label>
-        <select id="tz" name="tz" class="form-select" onchange="this.form.submit()">
-          {% for tz in timezone_choices %}
-            <option value="{{ tz }}" {% if tz == display_tz %}selected{% endif %}>
-              {{ tz }}
-            </option>
-          {% endfor %}
-        </select>
-        {# preserve other query params (like pagination/search) if you add them later #}
-        {% for key, val in request.GET.items %}
-          {% if key != "tz" %}
-            <input type="hidden" name="{{ key }}" value="{{ val }}">
-          {% endif %}
-        {% endfor %}
-      </form>
       {% include "coderedcms/includes/ical/calendar.html" %}
     </div>
   </div>

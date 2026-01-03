@@ -4,7 +4,14 @@
 {{ block.super }}
 {% with self.most_recent_occurrence_tz as nextup %}
 <div class="container my-5">
-  <p class="d-md-inline-block me-4"><b>When:</b> {{nextup.0}} ({{ self.timezone }})</p>
+  <p class="d-md-inline-block me-4">
+    <b>When:</b>
+     {{nextup.0}}
+      {% if nextup.1 and nextup.1 != nextup.0 %}
+        &ndash; {{ nextup.1 }}
+      {% endif %}
+     ({{ self.timezone }})
+  </p>
   {% if self.address %}
   <p class="d-md-inline-block me-4"><b>Where:</b> {{self.address}}</p>
   {% endif %}

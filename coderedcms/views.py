@@ -2,6 +2,9 @@ import mimetypes
 import os
 from datetime import datetime
 
+from zoneinfo import ZoneInfo
+from django.conf import settings
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 from django.contrib.contenttypes.models import ContentType
@@ -256,6 +259,43 @@ def event_generate_ical_for_calendar(request):
     return response
 
 
+# def event_get_calendar_events(request):
+#     """
+#     JSON list of events compatible with fullcalendar.js
+#     """
+#     # Parse input.
+#     try:
+#         page_id = request.GET["pid"]
+#     except KeyError:
+#         return HttpResponse("pid required", status=400)
+
+#     start = None
+#     end = None
+#     start_str = request.GET.get("start", None)
+#     end_str = request.GET.get("end", None)
+#     try:
+#         if start_str:
+#             start = timezone.make_aware(
+#                 datetime.strptime(start_str[:10], "%Y-%m-%d"),
+#             )
+#         if end_str:
+#             end = timezone.make_aware(
+#                 datetime.strptime(end_str[:10], "%Y-%m-%d"),
+#             )
+#     except ValueError:
+#         return HttpResponse(
+#             "start and end must be valid datetimes.", status=400
+#         )
+
+#     # Get the page.
+#     try:
+#         page = CoderedPage.objects.get(pk=page_id).specific
+#     except (CoderedPage.DoesNotExist, ValueError):
+#         raise Http404("Page does not exist")
+
+#     return JsonResponse(
+#         page.get_calendar_events(start=start, end=end), safe=False
+#     )
 def event_get_calendar_events(request):
     """
     JSON list of events compatible with fullcalendar.js
@@ -265,6 +305,13 @@ def event_get_calendar_events(request):
         page_id = request.GET["pid"]
     except KeyError:
         return HttpResponse("pid required", status=400)
+
+    # NEW: choose display tz
+    tzname = (request.GET.get("tz") or settings.TIME_ZONE).strip()
+    try:
+        tz = ZoneInfo(tzname)
+    except Exception:
+        tz = timezone.get_default_timezone()
 
     start = None
     end = None
@@ -289,10 +336,14 @@ def event_get_calendar_events(request):
         page = CoderedPage.objects.get(pk=page_id).specific
     except (CoderedPage.DoesNotExist, ValueError):
         raise Http404("Page does not exist")
-
-    return JsonResponse(
-        page.get_calendar_events(start=start, end=end), safe=False
-    )
+    
+     # NEW: run generation under the selected tz
+    with timezone.override(tz):
+        # data = page.get_calendar_events(start=start, end=end)
+        # print(data[0])
+        return JsonResponse(
+            page.get_calendar_events(start=start, end=end), safe=False
+        )
 
 
 @login_required
