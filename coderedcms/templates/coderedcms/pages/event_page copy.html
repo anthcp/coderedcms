@@ -2,9 +2,9 @@
 {% load wagtailadmin_tags wagtailcore_tags wagtailimages_tags coderedcms_tags %}
 {% block content_pre_body %}
 {{ block.super }}
-{% with self.most_recent_occurrence_tz as nextup %}
+{% with self.most_recent_occurrence as nextup %}
 <div class="container my-5">
-  <p class="d-md-inline-block me-4"><b>When:</b> {{nextup.0}} ({{ self.timezone }})</p>
+  <p class="d-md-inline-block me-4"><b>When:</b> {{nextup.0}}</p>
   {% if self.address %}
   <p class="d-md-inline-block me-4"><b>Where:</b> {{self.address}}</p>
   {% endif %}
@@ -27,7 +27,7 @@
 {% endblock %}
 
 {% block upcoming_dates %}
-{% if self.upcoming_occurrences_tz|length > 1 %}
+{% if self.upcoming_occurrences|length > 1 %}
 <div class="container">
   <h2>Upcoming Dates</h2>
   <div class="table-responsive">
@@ -37,7 +37,7 @@
         <th>End Time</th>
         <th>Actions</th>
       </tr>
-      {% for date in self.upcoming_occurrences_tz %}
+      {% for date in self.upcoming_occurrences %}
       <tr>
         <td>{{date.0}}</td>
         <td>{% if date.0 != date.1 %}{{date.1}}{% endif %}</td>
